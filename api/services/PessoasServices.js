@@ -12,9 +12,13 @@ class PessoasServices extends Services {
     }
 
     async pegaTodosOsRegistros(where = {}) {
+        return database[this.nomeDoModelo].scope('todos').findAll( { where: { ...where } })
+    }
+
+    async pegaUmRegistro(where = {}) {
         return database[this.nomeDoModelo]
-            .scope('todos')
-            .findAll( { where: { ...where } })
+        .scope('todos')
+        .findOne( { where: { ...where } })
     }
 
     async cancelaPessoasEMatriculas(estudanteId) {
@@ -22,6 +26,12 @@ class PessoasServices extends Services {
             await super.atualizaRegistro({ ativo: false }, estudanteId, { transaction: transacao })
             await this.matriculas.atualizaRegistros({ status: 'cancelado' }, { estudante_id: estudanteId }, { transaction: transacao })
     })
+    }
+
+    async pegaMatriculasPorEstudante(where = {}) {
+        const matriculas = await database[this.nomeDoModelo]
+            .findOne({ where: { ...where } })
+        return matriculas.getAulasMatriculadas()
     }
 }
 
